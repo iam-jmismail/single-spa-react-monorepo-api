@@ -11,19 +11,26 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: UserTypes;
+  updatedAt: Date;
+  udpatedAt: Date;
 }
 
-const userSchema = new Schema<IUser>({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  role: {
-    type: Number,
-    required: true,
-    default: 2,
-    enum: [UserTypes.ADMIN, UserTypes.USER],
+const userSchema = new Schema<IUser>(
+  {
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    role: {
+      type: Number,
+      required: true,
+      default: 2,
+      enum: [UserTypes.ADMIN, UserTypes.USER],
+    },
   },
-});
+  {
+    timestamps: true,
+  }
+);
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();

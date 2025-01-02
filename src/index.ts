@@ -1,9 +1,9 @@
 import express from "express";
 import cors from "cors";
-import { authRoutes } from "./routes/auth";
 import { DatabaseService } from "./lib/db";
 import { config } from "dotenv";
 import { errorHandler } from "./lib/error-handler";
+import { routes } from "./routes";
 
 config();
 
@@ -12,7 +12,7 @@ const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
-app.use(authRoutes);
+app.use(routes);
 
 // Connected to MongoDB
 DatabaseService.connect();
