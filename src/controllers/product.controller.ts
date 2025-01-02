@@ -1,18 +1,21 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import { validateRequest } from "@lib/class-validator";
 import { ConflictException, NotFoundException } from "@lib/error-handler";
 import { CreatProductDto } from "@dtos/create-product.dto";
 import Product from "@models/product.model";
+import { ExpressRequest } from "@middlewares/jwt.middleware";
 import mongoose, { Types } from "mongoose";
+import { validateAdmin } from "@lib/validateRole.lib";
 
 export class ProductController {
   static async addProduct(
-    req: Request<void, void, CreatProductDto>,
+    req: ExpressRequest<void, void, CreatProductDto>,
     res: Response,
     next: NextFunction
   ): Promise<void> {
     try {
       await validateRequest(req.body, CreatProductDto);
+      validateAdmin(req!.user!.role);
 
       const product = await Product.findOne({ name: req.body.name });
       if (product) throw new ConflictException("Product already exists");
@@ -27,7 +30,7 @@ export class ProductController {
     }
   }
   static async listProducts(
-    req: Request,
+    req: ExpressRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> {
@@ -51,7 +54,7 @@ export class ProductController {
     }
   }
   static async getProduct(
-    req: Request<{ productId: string }>,
+    req: ExpressRequest<{ productId: string }>,
     res: Response,
     next: NextFunction
   ): Promise<void> {
@@ -84,10 +87,12 @@ export class ProductController {
     }
   }
   static async updateProduct(
-    req: Request<{ productId: string }, void, Partial<CreatProductDto>>,
+    req: ExpressRequest<{ productId: string }, void, Partial<CreatProductDto>>,
     res: Response,
     next: NextFunction
   ): Promise<void> {
+    validateAdmin(req!.user!.role);
+
     try {
       if (!mongoose.isValidObjectId(req.params.productId)) {
         res.status(417).send({
@@ -120,10 +125,11 @@ export class ProductController {
   }
 
   static async deleteProduct(
-    req: Request<{ productId: string }>,
+    req: ExpressRequest<{ productId: string }>,
     res: Response,
     next: NextFunction
   ): Promise<void> {
+    validateAdmin(req!.user!.role);
     try {
       if (!mongoose.isValidObjectId(req.params.productId)) {
         res.status(417).send({

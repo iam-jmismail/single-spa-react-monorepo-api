@@ -25,6 +25,22 @@ export class NotFoundException extends Error {
   }
 }
 
+export class ForbiddenException extends Error {
+  constructor(message: string) {
+    super();
+    this.message = message;
+    this.name = "ForbiddenException";
+  }
+}
+
+export class UnAuthorizedException extends Error {
+  constructor(message: string) {
+    super();
+    this.message = message;
+    this.name = "UnAuthorizedException";
+  }
+}
+
 export const errorHandler = (
   err: any,
   req: Request,

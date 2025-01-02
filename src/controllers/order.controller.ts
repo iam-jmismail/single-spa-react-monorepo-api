@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import { validateOrder, validateRequest } from "@lib/class-validator";
 import {
   ConflictException,
@@ -11,13 +11,17 @@ import mongoose, { Types } from "mongoose";
 import { AddOrderDto, ProductDto } from "@dtos/add-order.dto";
 import { Type } from "class-transformer";
 import Order, { IOrders } from "@models/orders.model";
+import { validateAdmin, validateUser } from "@lib/validateRole.lib";
+import { ExpressRequest } from "@middlewares/jwt.middleware";
 
 export class OrderController {
   static async placeOrder(
-    req: Request<void, void, AddOrderDto>,
+    req: ExpressRequest<void, void, AddOrderDto>,
     res: Response,
     next: NextFunction
   ): Promise<void> {
+    validateUser(req!.user!.role);
+
     try {
       const isValid = validateOrder(req.body);
       if (!isValid)
@@ -65,10 +69,12 @@ export class OrderController {
     }
   }
   static async listOrders(
-    req: Request,
+    req: ExpressRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> {
+    validateAdmin(req!.user!.role);
+
     try {
       const orders = await Order.aggregate<
         Partial<IOrders & { productsResult: IProduct[] }>
@@ -135,7 +141,7 @@ export class OrderController {
     }
   }
   // static async updateProduct(
-  //   req: Request<{ productId: string }, void, Partial<CreatProductDto>>,
+  //   req: ExpressRequest<{ productId: string }, void, Partial<CreatProductDto>>,
   //   res: Response,
   //   next: NextFunction
   // ): Promise<void> {

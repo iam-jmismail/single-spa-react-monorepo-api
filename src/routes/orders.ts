@@ -3,8 +3,9 @@ import { OrderController } from "@controllers/order.controller";
 
 const orderRoutes = Router();
 
-orderRoutes.post("/", OrderController.placeOrder);
-orderRoutes.get("/", OrderController.listOrders);
-// orderRoutes.put("/:productId", OrderController.updateProduct);
+import authenticate from "@middlewares/jwt.middleware";
+
+orderRoutes.post("/", [authenticate], OrderController.placeOrder);
+orderRoutes.get("/", [authenticate], OrderController.listOrders);
 
 export { orderRoutes };

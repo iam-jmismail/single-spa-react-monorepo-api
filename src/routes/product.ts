@@ -1,12 +1,21 @@
 import { Router } from "express";
 import { ProductController } from "@controllers/product.controller";
+import authenticate from "@middlewares/jwt.middleware";
 
 const productRoutes = Router();
 
-productRoutes.post("/", ProductController.addProduct);
-productRoutes.get("/:productId", ProductController.getProduct);
-productRoutes.get("/", ProductController.listProducts);
-productRoutes.delete("/:productId", ProductController.deleteProduct);
-productRoutes.put("/:productId", ProductController.updateProduct);
+productRoutes.post("/", [authenticate], ProductController.addProduct);
+productRoutes.get("/:productId", [authenticate], ProductController.getProduct);
+productRoutes.get("/", [authenticate], ProductController.listProducts);
+productRoutes.delete(
+  "/:productId",
+  [authenticate],
+  ProductController.deleteProduct
+);
+productRoutes.put(
+  "/:productId",
+  [authenticate],
+  ProductController.updateProduct
+);
 
 export { productRoutes };

@@ -17,9 +17,10 @@
       "@models/*": ["src/models/*"],
       "@dtos/*": ["src/dtos/*"],
       "@lib/*": ["src/lib/*"],
-      "@services/*": ["src/services/*"]
+      "@services/*": ["src/services/*"],
+      "@middlewares/*": ["src/middlewares/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/types/env.d.ts"],
+  "include": ["src/**/*.ts", "./src/types"],
   "exclude": ["node_modules"]
 }
