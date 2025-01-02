@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "baseUrl": ".",
+    "paths": {
+      "@controllers/*": ["src/controllers/*"],
+      "@routes/*": ["src/routes/*"],
+      "@models/*": ["src/models/*"],
+      "@dtos/*": ["src/dtos/*"],
+      "@lib/*": ["src/lib/*"],
+      "@services/*": ["src/services/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/types/env.d.ts"],
+  "exclude": ["node_modules"]
+}
