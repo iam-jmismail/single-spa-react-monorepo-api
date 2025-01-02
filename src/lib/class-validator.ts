@@ -1,5 +1,6 @@
 import { validate } from "class-validator";
 import { ValidationError } from "./error-handler";
+import { AddOrderDto } from "@dtos/add-order.dto";
 
 export const validateRequest = async (
   data: any,
@@ -19,4 +20,30 @@ export const validateRequest = async (
   } catch (error) {
     throw error;
   }
+};
+
+export const validateOrder = (data: AddOrderDto): boolean => {
+  if (!Array.isArray(data.products) || data.products.length < 1) {
+    return false;
+  }
+
+  for (const product of data.products) {
+    if (
+      !product.productId ||
+      typeof product.productId !== "string" ||
+      !/^[0-9a-fA-F]{24}$/.test(product.productId)
+    ) {
+      return false;
+    }
+
+    if (
+      !product.quantity ||
+      typeof product.quantity !== "number" ||
+      product.quantity <= 0
+    ) {
+      return false;
+    }
+  }
+
+  return true;
 };
