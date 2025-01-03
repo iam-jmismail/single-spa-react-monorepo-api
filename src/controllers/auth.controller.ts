@@ -28,7 +28,9 @@ export class AuthController {
         role: user.role,
       });
 
-      res.status(200).json({ message: "Success", auth_token: token });
+      res
+        .status(200)
+        .json({ message: "Success", auth_token: token, role: user.role });
       return;
     } catch (error) {
       next(error);
@@ -59,7 +61,9 @@ export class AuthController {
         role: user.role,
       });
 
-      res.status(200).json({ message: "Success", auth_token: token });
+      res
+        .status(200)
+        .json({ message: "Success", auth_token: token, role: user.role });
       return;
     } catch (error) {
       next(error);

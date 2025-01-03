@@ -6,7 +6,7 @@ const productRoutes = Router();
 
 productRoutes.post("/", [authenticate], ProductController.addProduct);
 productRoutes.get("/:productId", [authenticate], ProductController.getProduct);
-productRoutes.get("/", [authenticate], ProductController.listProducts);
+productRoutes.get("/", ProductController.listProducts);
 productRoutes.delete(
   "/:productId",
   [authenticate],
