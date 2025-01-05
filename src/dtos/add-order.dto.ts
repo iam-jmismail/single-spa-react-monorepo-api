@@ -1,3 +1,4 @@
+import { OrderTypes } from "@models/orders.model";
 import { Type } from "class-transformer";
 import {
   ArrayMinSize,
@@ -28,6 +29,14 @@ export class AddOrderDto {
   products!: ProductDto[];
 
   constructor(data: Partial<AddOrderDto>) {
+    Object.assign(this, data);
+  }
+}
+
+export class UpdateOrderStatusDto {
+  status!: OrderTypes;
+
+  constructor(data: Partial<UpdateOrderStatusDto>) {
     Object.assign(this, data);
   }
 }

@@ -1,15 +1,9 @@
 import { NextFunction, Response } from "express";
-import { validateOrder, validateRequest } from "@lib/class-validator";
-import {
-  ConflictException,
-  NotFoundException,
-  ValidationError,
-} from "@lib/error-handler";
-import { CreatProductDto } from "@dtos/create-product.dto";
+import { validateOrder } from "@lib/class-validator";
+import { NotFoundException, ValidationError } from "@lib/error-handler";
 import Product, { IProduct } from "@models/product.model";
 import mongoose, { Types } from "mongoose";
-import { AddOrderDto, ProductDto } from "@dtos/add-order.dto";
-import { Type } from "class-transformer";
+import { AddOrderDto, UpdateOrderStatusDto } from "@dtos/add-order.dto";
 import Order, { IOrders } from "@models/orders.model";
 import { validateAdmin, validateUser } from "@lib/validateRole.lib";
 import { ExpressRequest } from "@middlewares/jwt.middleware";
@@ -20,9 +14,8 @@ export class OrderController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
-    validateUser(req!.user!.role);
-
     try {
+      validateUser(req!.user!.role);
       const isValid = validateOrder(req.body);
       if (!isValid)
         throw new ValidationError("Validation Failed", {
@@ -73,9 +66,8 @@ export class OrderController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
-    validateAdmin(req!.user!.role);
-
     try {
+      validateAdmin(req!.user!.role);
       const orders = await Order.aggregate<
         Partial<IOrders & { productsResult: IProduct[] }>
       >([
@@ -140,39 +132,42 @@ export class OrderController {
       next(error);
     }
   }
-  // static async updateProduct(
-  //   req: ExpressRequest<{ productId: string }, void, Partial<CreatProductDto>>,
-  //   res: Response,
-  //   next: NextFunction
-  // ): Promise<void> {
-  //   try {
-  //     if (!mongoose.isValidObjectId(req.params.productId)) {
-  //       res.status(417).send({
-  //         message: "Invalid Product Id",
-  //       });
-  //       return;
-  //     }
+  static async updateOrder(
+    req: ExpressRequest<
+      { orderId: string },
+      void,
+      Partial<UpdateOrderStatusDto>
+    >,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      if (!mongoose.isValidObjectId(req.params.orderId)) {
+        res.status(417).send({
+          message: "Invalid Order Id",
+        });
+        return;
+      }
 
-  //     const updatedResult = await Product.updateOne(
-  //       {
-  //         _id: new Types.ObjectId(req.params.productId),
-  //         isDeleted: false,
-  //       },
-  //       {
-  //         $set: {
-  //           ...req.body,
-  //           updatedAt: new Date(),
-  //         },
-  //       }
-  //     );
+      const updatedResult = await Order.updateOne(
+        {
+          _id: new Types.ObjectId(req.params.orderId),
+        },
+        {
+          $set: {
+            updatedAt: new Date(),
+            status: req.body.status,
+          },
+        }
+      );
 
-  //     if (updatedResult.modifiedCount === 0)
-  //       throw new NotFoundException("Product not found!");
+      if (updatedResult.modifiedCount === 0)
+        throw new NotFoundException("Order not found!");
 
-  //     res.status(204).send(null);
-  //     return;
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // }
+      res.status(204).send(null);
+      return;
+    } catch (error) {
+      next(error);
+    }
+  }
 }
