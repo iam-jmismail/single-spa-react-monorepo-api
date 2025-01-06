@@ -18,10 +18,12 @@ export interface IOrders extends Document {
   status: OrderTypes;
   createdAt: Date;
   updatedAt: Date;
+  orderNumber: number;
 }
 
 const ordersSchema = new Schema<IOrders>(
   {
+    orderNumber: { type: Number, required: true },
     products: [
       {
         productId: { type: Types.ObjectId, required: true, ref: "Products" },

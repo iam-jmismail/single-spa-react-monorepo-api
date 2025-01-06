@@ -7,6 +7,7 @@ import { AddOrderDto, UpdateOrderStatusDto } from "@dtos/add-order.dto";
 import Order, { IOrders } from "@models/orders.model";
 import { validateAdmin, validateUser } from "@lib/validateRole.lib";
 import { ExpressRequest } from "@middlewares/jwt.middleware";
+import Counter from "@models/counters.model";
 
 export class OrderController {
   static async placeOrder(
@@ -40,7 +41,10 @@ export class OrderController {
         return acc;
       }, 0);
 
+      const currentCount = await Counter.findOne({ name: "order" });
+
       const newOrder = new Order({
+        orderNumber: currentCount!.sequence,
         products: req.body.products.map(({ productId, quantity }) => {
           const product = products.find(
             (p) => String(p?._id) === String(productId)
@@ -54,6 +58,19 @@ export class OrderController {
       });
 
       await newOrder.save();
+
+      // Increment counter
+
+      await Counter.updateOne(
+        {
+          name: "order",
+        },
+        {
+          $set: {
+            sequence: currentCount!.sequence + 1,
+          },
+        }
+      );
 
       res.status(200).json({ message: "Order Placed", data: newOrder });
       return;
@@ -123,6 +140,7 @@ export class OrderController {
           createdAt,
           updatedAt,
           status,
+          orderNumber,
         }) => {
           const finalProducts = productsResult?.map((product) => {
             const quantity = products?.find(
@@ -144,6 +162,7 @@ export class OrderController {
             createdAt,
             updatedAt,
             status,
+            orderNumber,
           };
         }
       );
