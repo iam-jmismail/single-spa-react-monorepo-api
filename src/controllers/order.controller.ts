@@ -68,6 +68,28 @@ export class OrderController {
   ): Promise<void> {
     try {
       validateAdmin(req!.user!.role);
+
+      const page = !req.query.page || +req.query.page < 0 ? 1 : +req.query.page;
+      const limit = req.query.limit || 10;
+      const skip = (page - 1) * limit;
+
+      const ordersLength = await Order.find().countDocuments();
+
+      const meta = {
+        currentPage: page,
+        lastPage: Math.ceil(ordersLength / limit),
+        totalRecords: ordersLength,
+      };
+
+      if (!ordersLength) {
+        res.status(200).send({
+          message: "Success",
+          data: [],
+          meta,
+        });
+        return;
+      }
+
       const orders = await Order.aggregate<
         Partial<IOrders & { productsResult: IProduct[] }>
       >([
@@ -79,15 +101,18 @@ export class OrderController {
             as: "productsResult",
           },
         },
+        {
+          $skip: skip,
+        },
+        {
+          $limit: limit,
+        },
+        {
+          $sort: {
+            createdAt: -1,
+          },
+        },
       ]);
-
-      if (!orders.length) {
-        res.status(200).send({
-          message: "Success",
-          data: [],
-        });
-        return;
-      }
 
       const orderResults = orders.map(
         ({
@@ -126,6 +151,7 @@ export class OrderController {
       res.status(200).send({
         message: "Success",
         data: orderResults,
+        meta,
       });
       return;
     } catch (error) {

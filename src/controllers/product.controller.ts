@@ -39,7 +39,9 @@ export class ProductController {
       const limit = req.query.limit || 10;
       const skip = (page - 1) * limit;
 
-      const productsLength = await Product.find().countDocuments();
+      const productsLength = await Product.find().countDocuments({
+        isDeleted: false,
+      });
 
       const meta = {
         currentPage: page,
@@ -56,9 +58,12 @@ export class ProductController {
         return;
       }
 
-      const products = await Product.find().skip(skip).limit(limit).sort({
-        createdAt: -1,
-      });
+      const products = await Product.find({ isDeleted: false })
+        .skip(skip)
+        .limit(limit)
+        .sort({
+          createdAt: -1,
+        });
 
       res.status(200).send({
         message: "Success",

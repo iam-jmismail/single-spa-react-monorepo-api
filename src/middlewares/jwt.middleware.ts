@@ -29,16 +29,18 @@ const authenticate = (
   req: ExpressRequest,
   res: Response,
   next: NextFunction
-): any => {
+) => {
   const token = req.headers["authorization"]?.split(" ")[1];
 
   if (!token) {
-    return res.status(401).json({ message: "Unauthorized" });
+    res.status(401).json({ message: "Unauthorized" });
+    return;
   }
 
   jwt.verify(token, SECRET_KEY, (err, decoded) => {
     if (err) {
-      return res.status(403).json({ message: "Invalid or expired token" });
+      res.status(403).json({ message: "Invalid or expired token" });
+      return;
     }
 
     req.user = decoded as JwtPayload;
