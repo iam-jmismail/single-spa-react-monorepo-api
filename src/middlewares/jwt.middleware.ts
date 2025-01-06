@@ -17,7 +17,10 @@ export interface ExpressRequest<
   P = any,
   ResBody = any,
   ReqBody = any,
-  ReqQuery = qs.ParsedQs
+  ReqQuery = qs.ParsedQs & {
+    page?: number | undefined;
+    limit?: number | undefined;
+  }
 > extends Request<P, ResBody, ReqBody, ReqQuery> {
   user?: JwtPayload;
 }

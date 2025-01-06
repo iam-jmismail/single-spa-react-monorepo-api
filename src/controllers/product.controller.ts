@@ -35,18 +35,35 @@ export class ProductController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const products = await Product.find().sort({ createdAt: -1 });
-      if (!products.length) {
+      const page = !req.query.page || +req.query.page < 0 ? 1 : +req.query.page;
+      const limit = req.query.limit || 10;
+      const skip = (page - 1) * limit;
+
+      const productsLength = await Product.find().countDocuments();
+
+      const meta = {
+        currentPage: page,
+        lastPage: Math.ceil(productsLength / limit),
+        totalRecords: productsLength,
+      };
+
+      if (!productsLength) {
         res.status(200).send({
           message: "Success",
           data: [],
+          meta,
         });
         return;
       }
 
+      const products = await Product.find().skip(skip).limit(limit).sort({
+        createdAt: -1,
+      });
+
       res.status(200).send({
         message: "Success",
         data: products,
+        meta,
       });
       return;
     } catch (error) {
